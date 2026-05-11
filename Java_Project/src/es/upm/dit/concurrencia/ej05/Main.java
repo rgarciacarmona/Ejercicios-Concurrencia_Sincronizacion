@@ -2,30 +2,16 @@ package es.upm.dit.concurrencia.ej05;
 
 public class Main {
     public static void main(String[] args) {
-        Almacen almacen = new Almacen();
+        int numFilosofos = 5; // Configuración estándar del problema
+        MesaFilosofos mesa = new MesaFilosofos(numFilosofos);
+        
+        Filosofo[] filosofos = new Filosofo[numFilosofos];
 
-        // 2 Productores
-        for (int i = 1; i <= 2; i++) {
-            new Thread(() -> {
-                try {
-                    while (true) {
-                        almacen.almacenar(Thread.currentThread().getName());
-                        Thread.sleep((long)(Math.random() * 300));
-                    }
-                } catch (InterruptedException e) {}
-            }, "Prod-" + i).start();
-        }
-
-        // 3 Consumidores
-        for (int i = 1; i <= 3; i++) {
-            new Thread(() -> {
-                try {
-                    while (true) {
-                        almacen.extraer(Thread.currentThread().getName());
-                        Thread.sleep((long)(Math.random() * 500));
-                    }
-                } catch (InterruptedException e) {}
-            }, "Cons-" + i).start();
+        System.out.println("--- Comienza la cena de los filósofos ---");
+        
+        for (int i = 0; i < numFilosofos; i++) {
+            filosofos[i] = new Filosofo(i, mesa);
+            filosofos[i].start();
         }
     }
 }
