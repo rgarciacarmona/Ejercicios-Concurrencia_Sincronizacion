@@ -26,16 +26,7 @@ public class MesaSolidaria {
      */
     public synchronized void intentarFumar(int miRecurso) throws InterruptedException {
         
-        // LÓGICA DE AYUDA (SOLIDARIDAD)
-        // Antes de intentar fumar, verifico si alguien está pidiendo MI recurso
-        while (pidiendoAyuda && ingredienteSolicitado == miRecurso && !ayudaConcedida) {
-            System.out.println("!!! Fumador (" + nombre(miRecurso) + ") PRESTA ayuda solidaria.");
-            ayudaConcedida = true;
-            notifyAll();
-            // Sigo con mi vida (volveré a intentar fumar o esperar)
-        }
-        
-        // LÓGICA DE FUMAR
+        // LÓGICA DE FUMAR Y PRESTAR AYUDA
         // Puedo coger el de la mesa si:
         // 1. Hay algo en la mesa.
         // 2. No es lo mismo que ya tengo.
@@ -57,7 +48,6 @@ public class MesaSolidaria {
         
         // Calcular qué me falta
         // Total recursos son 0, 1, 2. La suma es 3.
-        // Me falta = 3 - miRecurso - ingredienteCogido
         int meFalta = 3 - miRecurso - ingredienteCogido;
         
         System.out.println("... Fumador (" + nombre(miRecurso) + ") coge " + nombre(ingredienteCogido) + 
