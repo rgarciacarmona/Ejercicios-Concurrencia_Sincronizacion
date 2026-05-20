@@ -4,6 +4,7 @@ public class Marmita {
     private int raciones;
     private final int CAPACIDAD_MAX;
     private boolean cocineroAvisado = false;
+    private String canibalQueAviso = null;
 
     public Marmita(int capacidad) {
         this.CAPACIDAD_MAX = capacidad;
@@ -11,23 +12,31 @@ public class Marmita {
     }
 
     public synchronized void comer(String nombreCanibal) throws InterruptedException {
-        // Si la marmita está vacía, avisar al cocinero y esperar
-        while (raciones == 0) {
-            if (!cocineroAvisado) {
+    	// Un caníbal espera si la marmita está vacía O si no es el caníbal que avisó (estando el puesto reservado)
+        while (raciones == 0 || (canibalQueAviso != null && !canibalQueAviso.equals(nombreCanibal))) {
+            // Si la marmita está vacía y nadie ha avisado aún, este caníbal avisa
+            if (raciones == 0 && !cocineroAvisado) {
                 System.out.println("!!! " + nombreCanibal + " ve la marmita vacía y AVISA al cocinero.");
                 cocineroAvisado = true;
+                canibalQueAviso = nombreCanibal;
                 notifyAll(); // Despertamos al cocinero
             }
             System.out.println("... " + nombreCanibal + " espera comida.");
             wait();
         }
 
+        // Si el caníbal que va a comer es el que avisó, se limpia la prioridad
+        if (nombreCanibal.equals(canibalQueAviso)) {
+            canibalQueAviso = null;
+        }
+        
         // Comer
         raciones--;
         System.out.println("--- " + nombreCanibal + " come. Raciones restantes: " + raciones);
         
-        // Si soy el último en comer y dejo la marmita a 0, el siguiente avisará
-        // No es estrictamente necesario notificar aquí, salvo para otros caníbales
+        // ¡Importante! Notificamos a los demás porque el caníbal prioritario ya liberó el turno
+        // o por si quedan raciones para los que estaban esperando.
+        notifyAll();
     }
 
     public synchronized void rellenar() throws InterruptedException {
